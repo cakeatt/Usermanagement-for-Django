@@ -1,0 +1,190 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">表单</div>
+            <div class="panel-body">
+                <form id="formAdd" novalidate>
+                    <div class="clearfix">
+                        {% for field in form %}
+                            <div class="col-xs-6">
+                                <div class="form-group" style="position: relative;margin-bottom:20px;">
+                                    <label>{{ field.label }}</label>
+                                    {{ field }}
+                                    <span class='error-msg' style="color:red;position: absolute"></span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-xs-12">
+                        <button id='btnAdd' type="button" class="btn btn-primary">提交</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="panel panel-default">
+                <div class="panel panel-default">
+                    <div class="panel-heading col-lg-6">
+                        <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                        任务列表
+                    </div>
+                    <div class="col-lg-6">
+                        <form action="" method="get">
+                            <div class="input-group" style="margin-top:5px">
+                                <input name='q' type="text" class="form-control" placeholder="Search for..." value="{{ search_data }}">
+                                <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+                        </span>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>标题</th>
+                                <th>级别</th>
+                                <th>负责人</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in queryset %}
+                                <tr>
+                                    <th scope="row">{{ item.id }}</th>
+                                    <td>{{ item.title }}</td>
+                                    <td>{{ item.get_level_display }}</td>
+                                    <td>{{ item.user.username}}</td>
+                                    <td>
+                                        <a href="http://127.0.0.1:8000/admin/{{ item.id }}/edit/" class="btn btn-primary btn-xs">编辑</a>
+                                        <a href="http://127.0.0.1:8000/user/{{ item.id }}/delete/" class="btn btn-danger btn-xs">删除</a>
+                                        <a href="http://127.0.0.1:8000/admin/{{ item.id }}/reset/" class="btn btn-warning btn-xs">重置密码</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <nav aria-label="...">
+                <ul class="pagination">
+                    {{ page_string }}
+                </ul>
+            </nav>
+        </div>
+    
+        <div class="container"><hr>
+            <h1>ajax学习</h1>
+            <h3>示例</h3>
+            <input id='btn1' type="button" class="btn btn-primary" value="点一下">
+
+            <h3>示例2</h3>
+            <input type="text" id="txtUser" placeholder="name">
+            <input type="text" id="txtAge" placeholder="age">
+            <input id='btn2' type="button" class="btn btn-primary" value="点一下">
+            <h3>示例3</h3>
+            <form action="" id='form3'>
+                <input type="text" name="user" placeholder="user">
+                <input type="text" name="age" placeholder="age">
+                <input type="text" name="mail" placeholder="mail">
+                <input type="text" name="more" placeholder="more">
+                <input id='btn3' type="button" class="btn btn-primary" value="点一下">
+
+            </form>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        $(function (){
+            {#页面框架加载完成之后代码自动执行#}
+            bind1();
+            bind2();
+            bind3();
+            bindAdd();
+        })
+
+        function bind1(){
+            $("#btn1").click(function(){
+                $.ajax({
+                    url:'http://127.0.0.1:8000/task/ajax/',
+                    type:'post',
+                    data:{
+                        n1:123,
+                        n2:456
+                    },
+                    dataType:'json',
+                    success: function(res){
+                        console.log(res);
+                        console.log(res.data);
+                    }
+                })
+            })
+        }
+
+        function bind2(){
+            $("#btn2").click(function(){
+                $.ajax({
+                    url:'http://127.0.0.1:8000/task/ajax/',
+                    type:'post',
+                    data:{
+                        name:$('txtUser').val(),
+                        age:$('txtAge').val()
+                    },
+                    dataType:'json',
+                    success: function(res){
+                        console.log(res);
+                        console.log(res.data);
+                    }
+                })
+            })
+        }
+
+        function bind3(){
+            $("#btn3").click(function(){
+                $.ajax({
+                    url:'http://127.0.0.1:8000/task/ajax/',
+                    type:'post',
+                    data:$('#form3').serialize(),
+                    dataType:'json',
+                    success: function(res){
+                        console.log(res);
+                        console.log(res.data);
+                    }
+                })
+            })
+        }
+
+        function bindAdd(){
+            $("#btnAdd").click(function(){
+                $('.error-msg').empty();
+
+                $.ajax({
+                    url:'http://127.0.0.1:8000/task/add/',
+                    type:'post',
+                    data:$('#formAdd').serialize(),
+                    dataType:'json',
+                    success: function(res){
+                        if(res.status){
+                            alert('添加成功')
+                            location.reload();
+                        }
+                        else{
+                            $.each(res.error,function(name,data){
+                                console.log(name,data);
+                                $('#id_'+name).next().text(data[0])
+                            })
+                        }
+                    }
+                })
+            })
+        }
+    </script>
+{% endblock %}

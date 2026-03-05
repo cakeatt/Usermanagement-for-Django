@@ -1,0 +1,82 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">折线图</div>
+            <div class="panel-body">
+                Panel content
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">柱状图</div>
+                    <div class="panel-body">
+                        <div id="m1" style="width: 100%;height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">饼图</div>
+                    <div class="panel-body">
+                        Panel content
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script src="{% static  'js/echarts.min.js'%}"></script>
+    <script>
+
+        $(function (){
+            initBar();
+        })
+
+        function initBar(){
+            // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('m1'));
+
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: '员工业绩月度汇总信息',
+                textAlign: 'auto',
+                left: 'center',
+            },
+            tooltip: {},
+            legend: {
+                data: [],
+                bottom:0
+            },
+            xAxis: {
+                data: []
+            },
+            yAxis: {},
+            series: []
+        };
+
+        $.ajax({
+            url: 'http://127.0.0.1:8000/chart/bar/',
+            type:'get',
+            dataType:'json',
+            success:function(res){
+                // 使用刚指定的配置项和数据显示图表。
+                if(res.status){
+                    option.legend.data = res.data.legend;
+                    option.xAxis.data = res.data.x_xis;
+                    option.series = res.data.series_list;
+                    myChart.setOption(option);
+                }
+
+            }
+        })
+        }
+
+    </script>
+{% endblock %}
